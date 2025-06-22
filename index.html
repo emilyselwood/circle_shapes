@@ -176,6 +176,20 @@
 
                         padding: 5px;
                     }
+
+                    .deleteButton {
+                        width: 100%;
+                        border: 1px;
+                        border-style: solid;
+                        border-radius: 5px;
+                        text-align: center;
+
+                        cursor: pointer;
+
+                        border-color: black;
+                        background-color: aquamarine;
+
+                    }
                 `
 
                 const div_element = document.createElement("div");
@@ -228,6 +242,18 @@
                 this.loop_rotation.initalvalue = 0;
 
                 div_element.appendChild(this.loop_rotation);
+
+                const deleteButton = document.createElement("div");
+                deleteButton.innerText = "delete";
+                deleteButton.classList.add("deleteButton");
+
+                const customElement = this;
+                deleteButton.addEventListener("click", function (e) {
+                    customElement.parentElement.removeChild(customElement);
+                    update_drawing();
+                })
+
+                div_element.appendChild(deleteButton);
 
                 const shadow = this.attachShadow({ mode: "open" });
 
