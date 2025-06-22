@@ -95,10 +95,6 @@
             }
 
             connectedCallback() {
-                const style_element = document.createElement("style");
-                style_element.textContent = `
-
-                `
 
                 const div_element = document.createElement("div");
 
@@ -129,7 +125,6 @@
 
                 const shadow = this.attachShadow({ mode: "open" });
 
-                shadow.append(style_element);
                 shadow.append(div_element);
             }
 
@@ -139,6 +134,54 @@
         }
 
         customElements.define('input-range-field', InputRangeField);
+
+        class InputColourPicker extends HTMLElement {
+            static observedAttributes = ["heading"];
+            constructor() {
+                super();
+                this.heading = "";
+                this.colourPickerEl = null;
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "heading") {
+                    this.heading = newValue;
+                }
+            }
+
+            connectedCallback() {
+                const styleEl = document.createElement("style");
+
+                const divEl = document.createElement("div");
+
+                const label = document.createElement("label");
+                label.innerText = this.heading;
+                label.for = this.heading;
+
+                divEl.appendChild(label);
+
+                this.colourPickerEl = document.createElement("input");
+                this.colourPickerEl.type = "color";
+                this.colourPickerEl.name = this.heading;
+                this.colourPickerEl.value = "#000000";
+
+                this.colourPickerEl.addEventListener("input", (event) => {
+                    update_drawing();
+                });
+
+                divEl.appendChild(this.colourPickerEl);
+
+                const shadow = this.attachShadow({ mode: "open" });
+
+                shadow.append(divEl);
+            }
+
+            getValue() {
+                return this.colourPickerEl.value;
+            }
+        }
+
+        customElements.define('input-colour-picker', InputColourPicker);
 
         class ElementControlForm extends HTMLElement {
 
@@ -150,6 +193,7 @@
                 this.loop_radius = null;
                 this.loop_count = null;
                 this.loop_rotation = null;
+                this.colour_picker = null;
             }
 
             connectedCallback() {
@@ -234,6 +278,11 @@
 
                 div_element.appendChild(this.loop_rotation);
 
+                this.colour_picker = document.createElement("input-colour-picker");
+                this.colour_picker.heading = "Colour";
+
+                div_element.appendChild(this.colour_picker);
+
                 const deleteButton = document.createElement("div");
                 deleteButton.innerText = "delete";
                 deleteButton.classList.add("deleteButton");
@@ -259,7 +308,8 @@
                     "shape_rotation": this.shape_rotation.getValue(),
                     "loop_radius": this.loop_radius.getValue(),
                     "loop_count": this.loop_count.getValue(),
-                    "loop_rotation": this.loop_rotation.getValue()
+                    "loop_rotation": this.loop_rotation.getValue(),
+                    "colour": this.colour_picker.getValue()
                 };
             }
 
@@ -313,6 +363,7 @@
                     path = path + "Z";
 
                     shapeEl.setAttribute("d", path);
+                    shapeEl.setAttribute("stroke", loopValues["colour"]);
 
                     shapeGroup.appendChild(shapeEl);
 
