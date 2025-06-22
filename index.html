@@ -19,21 +19,22 @@
             box-sizing: border-box;
         }
 
+
         .row {
             display: flex;
+            flex-wrap: wrap;
+
             height: 100%;
             padding: 10px;
         }
 
         .canvasContainer {
-            flex: 75%;
-            height: 100%;
+            flex: 100%;
+
         }
 
         .controlContainer {
-            flex: 25%;
-            height: 100%;
-
+            flex: 100%;
             overflow-y: scroll;
 
             border: 1px;
@@ -43,6 +44,19 @@
             padding: 5px;
 
             background-color: lightskyblue;
+            font-size: 3em;
+        }
+
+        @media (min-aspect-ratio: 1/1) {
+            .canvasContainer {
+                flex: 75%;
+                height: 100%;
+            }
+
+            .controlContainer {
+                flex: 25%;
+                font-size: 1.5em;
+            }
         }
 
         .button {
@@ -58,6 +72,7 @@
             background-color: aquamarine;
 
             margin-top: 5px;
+            padding: 10px;
         }
     </style>
 
