@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>patterns</title>
+    <style>
+        html,
+        body {
+
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+            height: 100%;
+            padding: 10px;
+        }
+
+        .canvasContainer {
+            flex: 75%;
+            height: 100%;
+        }
+
+        .controlContainer {
+            flex: 25%;
+            height: 100%;
+
+            overflow-y: scroll;
+
+            border: 1px;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: black;
+            padding: 5px;
+
+            background-color: lightskyblue;
+        }
+
+        svg {
+            stroke: black;
+            fill: none;
+            stroke-width: 1px;
+            stroke-opacity: 1;
+            fill-opacity: 1;
+        }
+
+        .addButton {
+            width: 100%;
+            border: 1px;
+            border-style: solid;
+            border-radius: 5px;
+            text-align: center;
+
+            cursor: pointer;
+
+            border-color: black;
+            background-color: aquamarine;
+
+            margin-top: 5px;
+        }
+    </style>
+
+    <script>
+
+        class InputRangeField extends HTMLElement {
+
+            static observedAttributes = ["heading", "minvalue", "maxvalue", "initalvalue"];
+
+            constructor() {
+                super();
+                this.heading = "";
+                this.minvalue = 0;
+                this.maxvalue = 100;
+                this.initalvalue = 6;
+                this.input_el = null;
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "heading") {
+                    this.heading = newValue;
+                }
+
+                if (name == "minvalue") {
+                    this.minvalue = newValue;
+                }
+
+                if (name == "maxvalue") {
+                    this.maxvalue = newValue;
+                }
+
+                if (name == "initalvalue") {
+                    this.initalvalue = newValue;
+                }
+            }
+
+            connectedCallback() {
+                const style_element = document.createElement("style");
+                style_element.textContent = `
+
+                `
+
+                const div_element = document.createElement("div");
+
+                const label = document.createElement("label");
+                label.innerText = this.heading;
+                label.for = this.heading;
+
+                div_element.appendChild(label);
+
+                const value = document.createElement("span");
+                value.innerText = this.initalvalue;
+
+                this.input_el = document.createElement("input");
+
+                this.input_el.type = "range";
+                this.input_el.min = this.minvalue;
+                this.input_el.max = this.maxvalue;
+                this.input_el.value = this.initalvalue;
+                this.input_el.name = this.heading;
+
+                this.input_el.addEventListener("input", (event) => {
+                    value.textContent = event.target.value;
+                    update_drawing();
+                });
+
+                div_element.appendChild(this.input_el);
+                div_element.appendChild(value);
+
+                const shadow = this.attachShadow({ mode: "open" });
+
+                shadow.append(style_element);
+                shadow.append(div_element);
+            }
+
+            getValue() {
+                return Number(this.input_el.value);
+            }
+        }
+
+        customElements.define('input-range-field', InputRangeField);
+
+        class ElementControlForm extends HTMLElement {
+
+            constructor() {
+                super();
+                this.shape_corners = null;
+                this.shape_radius = null;
+                this.shape_rotation = null;
+                this.loop_radius = null;
+                this.loop_count = null;
+                this.loop_rotation = null;
+            }
+
+            connectedCallback() {
+                const style_element = document.createElement("style");
+                style_element.textContent = `
+                    * {
+                        box-sizing: border-box;
+                    }
+                    .elementForm {
+                        width: 100%;
+                        border: 1px;
+                        border-style: solid;
+                        border-radius: 5px;
+                        border-color: black;
+
+                        padding: 5px;
+                    }
+                `
+
+                const div_element = document.createElement("div");
+                div_element.classList.add("elementForm");
+
+                this.shape_corners = document.createElement("input-range-field");
+                this.shape_corners.heading = "Shape Corners";
+                this.shape_corners.minvalue = 3;
+                this.shape_corners.maxvalue = 20;
+                this.shape_corners.initalvalue = 6;
+
+                div_element.appendChild(this.shape_corners);
+
+                this.shape_radius = document.createElement("input-range-field");
+                this.shape_radius.heading = "Shape Radius";
+                this.shape_radius.minvalue = 1;
+                this.shape_radius.maxvalue = 100;
+                this.shape_radius.initalvalue = 5;
+
+                this.shape_rotation = document.createElement("input-range-field");
+                this.shape_rotation.heading = "Shape rotation";
+                this.shape_rotation.minvalue = 0;
+                this.shape_rotation.maxvalue = 360;
+                this.shape_rotation.initalvalue = 0;
+
+                div_element.appendChild(this.shape_rotation);
+
+                div_element.appendChild(this.shape_radius);
+
+                this.loop_radius = document.createElement("input-range-field");
+                this.loop_radius.heading = "Loop Radius";
+                this.loop_radius.minvalue = 0;
+                this.loop_radius.maxvalue = 100;
+                this.loop_radius.initalvalue = 5;
+
+                div_element.appendChild(this.loop_radius);
+
+                this.loop_count = document.createElement("input-range-field");
+                this.loop_count.heading = "Loop Count";
+                this.loop_count.minvalue = 1;
+                this.loop_count.maxvalue = 20;
+                this.loop_count.initalvalue = 6;
+
+                div_element.appendChild(this.loop_count);
+
+                this.loop_rotation = document.createElement("input-range-field");
+                this.loop_rotation.heading = "Loop rotation";
+                this.loop_rotation.minvalue = 0;
+                this.loop_rotation.maxvalue = 360;
+                this.loop_rotation.initalvalue = 0;
+
+                div_element.appendChild(this.loop_rotation);
+
+                const shadow = this.attachShadow({ mode: "open" });
+
+                shadow.append(style_element);
+                shadow.append(div_element);
+            }
+
+            getValues() {
+                return {
+                    "shape_corners": this.shape_corners.getValue(),
+                    "shape_radius": this.shape_radius.getValue(),
+                    "shape_rotation": this.shape_rotation.getValue(),
+                    "loop_radius": this.loop_radius.getValue(),
+                    "loop_count": this.loop_count.getValue(),
+                    "loop_rotation": this.loop_rotation.getValue()
+                };
+            }
+
+        }
+
+        customElements.define('element-control-form', ElementControlForm);
+
+        function update_drawing() {
+            const parentEl = document.getElementById("controls");
+            const imageEl = document.getElementById("image_root");
+
+            // Clear the existing elements.
+            while (imageEl.firstChild) {
+                imageEl.removeChild(imageEl.lastChild);
+            }
+
+            const rootGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            rootGroup.setAttribute("transform", "translate(200, 200)");
+
+            var children = parentEl.children;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+
+                const loopValues = child.getValues();
+                console.log(loopValues);
+
+                const loopGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                loopGroup.setAttribute("transform", "rotate(" + loopValues["loop_rotation"] + ")");
+                const loopStep = 360 / loopValues["loop_count"];
+                for (let l = 0; l < loopValues["loop_count"]; l++) {
+                    const shapeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    shapeGroup.setAttribute("transform", "rotate(" + (loopStep * l) + ")");
+
+                    // draw the shape...
+                    const shapeEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+                    const shapeStep = (2 * Math.PI) / loopValues["shape_corners"];
+                    const shapeStart = ((2 * Math.PI) / 360) * loopValues["shape_rotation"];
+                    let path = "";
+                    for (let s = 0; s < loopValues["shape_corners"]; s++) {
+                        const angle = (s * shapeStep) + shapeStart;
+                        const x = (0 * Math.cos(angle)) - (loopValues["shape_radius"] * Math.sin(angle));
+                        const y = (loopValues["shape_radius"] * Math.cos(angle)) + (0 * Math.sin(angle));
+                        if (s == 0) {
+                            path = path + "M" + x + " " + (y + loopValues["loop_radius"]);
+                        } else {
+                            path = path + " L" + x + " " + (y + loopValues["loop_radius"]);
+                        }
+                    }
+
+                    path = path + "Z";
+
+                    shapeEl.setAttribute("d", path);
+
+                    shapeGroup.appendChild(shapeEl);
+
+                    loopGroup.appendChild(shapeGroup);
+                }
+
+                rootGroup.appendChild(loopGroup);
+
+            }
+
+            imageEl.appendChild(rootGroup);
+        }
+
+        function add_element() {
+            const parentEl = document.getElementById("controls");
+
+            const new_control = document.createElement("element-control-form");
+
+            parentEl.appendChild(new_control);
+
+            update_drawing();
+        }
+    </script>
+</head>
+
+<body>
+    <div class="row">
+        <div id="canvas_container" class="canvasContainer">
+            <svg id="image_root" version="1.1" viewBox="0 0 400 400" with=100% height=100%
+                xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+
+            </svg>
+        </div>
+        <div id="controls_container" class="controlContainer">
+            <div id="controls">
+
+            </div>
+            <div id="add_button" class="addButton" onclick="add_element()">
+                Add Element
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
