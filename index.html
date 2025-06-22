@@ -6,7 +6,6 @@
     <style>
         html,
         body {
-
             margin: 0;
             padding: 0;
         }
@@ -46,7 +45,7 @@
             background-color: lightskyblue;
         }
 
-        .addButton {
+        .button {
             width: 100%;
             border: 1px;
             border-style: solid;
@@ -355,6 +354,17 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(blobURL);
         }
+
+        function clear_loops() {
+            console.log("clearing all loops");
+            const parentEl = document.getElementById("controls");
+            // Clear the existing elements.
+            while (parentEl.firstChild) {
+                parentEl.removeChild(parentEl.lastChild);
+            }
+
+            update_drawing();
+        }
     </script>
 </head>
 
@@ -371,12 +381,14 @@
             <div id="controls">
 
             </div>
-            <div id="add_button" class="addButton" onclick="add_element()">
-                Add Element
+            <div id="add_button" class="button" onclick="add_element()">
+                Add Loop
             </div>
-
-            <div id="save_button" class="addButton" onclick="download()">
+            <div id="save_button" class="button" onclick="download()">
                 Download
+            </div>
+            <div id="clear_button" class="button" onclick="clear_loops()">
+                Clear
             </div>
         </div>
     </div>
