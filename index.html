@@ -89,7 +89,7 @@
                 this.minvalue = 0;
                 this.maxvalue = 100;
                 this.initalvalue = 6;
-                this.input_el = null;
+                this.inputEl = null;
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
@@ -123,20 +123,20 @@
                 const value = document.createElement("span");
                 value.innerText = this.initalvalue;
 
-                this.input_el = document.createElement("input");
+                this.inputEl = document.createElement("input");
 
-                this.input_el.type = "range";
-                this.input_el.min = this.minvalue;
-                this.input_el.max = this.maxvalue;
-                this.input_el.value = this.initalvalue;
-                this.input_el.name = this.heading;
+                this.inputEl.type = "range";
+                this.inputEl.min = this.minvalue;
+                this.inputEl.max = this.maxvalue;
+                this.inputEl.value = this.initalvalue;
+                this.inputEl.name = this.heading;
 
-                this.input_el.addEventListener("input", (event) => {
+                this.inputEl.addEventListener("input", (event) => {
                     value.textContent = event.target.value;
                     update_drawing();
                 });
 
-                div_element.appendChild(this.input_el);
+                div_element.appendChild(this.inputEl);
                 div_element.appendChild(value);
 
                 const shadow = this.attachShadow({ mode: "open" });
@@ -145,17 +145,22 @@
             }
 
             getValue() {
-                return Number(this.input_el.value);
+                return Number(this.inputEl.value);
+            }
+
+            setValue(value) {
+                this.inputEl.value = value;
             }
         }
 
         customElements.define('input-range-field', InputRangeField);
 
         class InputColourPicker extends HTMLElement {
-            static observedAttributes = ["heading"];
+            static observedAttributes = ["heading", "initalvalue"];
             constructor() {
                 super();
                 this.heading = "";
+                this.initalvalue = "#000000";
                 this.colourPickerEl = null;
             }
 
@@ -179,7 +184,7 @@
                 this.colourPickerEl = document.createElement("input");
                 this.colourPickerEl.type = "color";
                 this.colourPickerEl.name = this.heading;
-                this.colourPickerEl.value = "#000000";
+                this.colourPickerEl.value = this.initalvalue;
 
                 this.colourPickerEl.addEventListener("input", (event) => {
                     update_drawing();
@@ -195,14 +200,29 @@
             getValue() {
                 return this.colourPickerEl.value;
             }
+
+            setValue(value) {
+                this.colourPickerEl.value = value;
+            }
         }
 
         customElements.define('input-colour-picker', InputColourPicker);
 
         class ElementControlForm extends HTMLElement {
 
+            static observedAttributes = ["initialData"]
+
             constructor() {
                 super();
+                this.initialData = {
+                    "shape_corners": 6,
+                    "shape_radius": 5,
+                    "shape_rotation": 0,
+                    "loop_radius": 5,
+                    "loop_count": 6,
+                    "loop_rotation": 0,
+                    "colour": "#000000"
+                };
                 this.shape_corners = null;
                 this.shape_radius = null;
                 this.shape_rotation = null;
@@ -212,9 +232,15 @@
                 this.colour_picker = null;
             }
 
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "initialData") {
+                    this.initialData = newValue;
+                }
+            }
+
             connectedCallback() {
-                const style_element = document.createElement("style");
-                style_element.textContent = `
+                const styleEl = document.createElement("style");
+                styleEl.textContent = `
                     * {
                         box-sizing: border-box;
                     }
@@ -243,61 +269,62 @@
                     }
                 `
 
-                const div_element = document.createElement("div");
-                div_element.classList.add("elementForm");
+                const divEl = document.createElement("div");
+                divEl.classList.add("elementForm");
 
                 this.shape_corners = document.createElement("input-range-field");
                 this.shape_corners.heading = "Shape Corners";
                 this.shape_corners.minvalue = 3;
                 this.shape_corners.maxvalue = 20;
-                this.shape_corners.initalvalue = 6;
+                this.shape_corners.initalvalue = this.initialData["shape_corners"];
 
-                div_element.appendChild(this.shape_corners);
+                divEl.appendChild(this.shape_corners);
 
                 this.shape_radius = document.createElement("input-range-field");
                 this.shape_radius.heading = "Shape Radius";
                 this.shape_radius.minvalue = 1;
                 this.shape_radius.maxvalue = 100;
-                this.shape_radius.initalvalue = 5;
+                this.shape_radius.initalvalue = this.initialData["shape_radius"];
+
+                divEl.appendChild(this.shape_radius);
 
                 this.shape_rotation = document.createElement("input-range-field");
                 this.shape_rotation.heading = "Shape rotation";
                 this.shape_rotation.minvalue = 0;
                 this.shape_rotation.maxvalue = 360;
-                this.shape_rotation.initalvalue = 0;
+                this.shape_rotation.initalvalue = this.initialData["shape_rotation"];
 
-                div_element.appendChild(this.shape_rotation);
-
-                div_element.appendChild(this.shape_radius);
+                divEl.appendChild(this.shape_rotation);
 
                 this.loop_radius = document.createElement("input-range-field");
                 this.loop_radius.heading = "Loop Radius";
                 this.loop_radius.minvalue = 0;
                 this.loop_radius.maxvalue = 100;
-                this.loop_radius.initalvalue = 5;
+                this.loop_radius.initalvalue = this.initialData["loop_radius"];
 
-                div_element.appendChild(this.loop_radius);
+                divEl.appendChild(this.loop_radius);
 
                 this.loop_count = document.createElement("input-range-field");
                 this.loop_count.heading = "Loop Count";
                 this.loop_count.minvalue = 1;
                 this.loop_count.maxvalue = 20;
-                this.loop_count.initalvalue = 6;
+                this.loop_count.initalvalue = this.initialData["loop_count"];
 
-                div_element.appendChild(this.loop_count);
+                divEl.appendChild(this.loop_count);
 
                 this.loop_rotation = document.createElement("input-range-field");
                 this.loop_rotation.heading = "Loop rotation";
                 this.loop_rotation.minvalue = 0;
                 this.loop_rotation.maxvalue = 360;
-                this.loop_rotation.initalvalue = 0;
+                this.loop_rotation.initalvalue = this.initialData["loop_rotation"];
 
-                div_element.appendChild(this.loop_rotation);
+                divEl.appendChild(this.loop_rotation);
 
                 this.colour_picker = document.createElement("input-colour-picker");
                 this.colour_picker.heading = "Colour";
+                this.colour_picker.initalvalue = this.initialData["colour"];
 
-                div_element.appendChild(this.colour_picker);
+                divEl.appendChild(this.colour_picker);
 
                 const deleteButton = document.createElement("div");
                 deleteButton.innerText = "delete";
@@ -309,12 +336,12 @@
                     update_drawing();
                 })
 
-                div_element.appendChild(deleteButton);
+                divEl.appendChild(deleteButton);
 
                 const shadow = this.attachShadow({ mode: "open" });
 
-                shadow.append(style_element);
-                shadow.append(div_element);
+                shadow.append(styleEl);
+                shadow.append(divEl);
             }
 
             getValues() {
@@ -333,6 +360,55 @@
 
         customElements.define('element-control-form', ElementControlForm);
 
+        function loopValuesToSave(values) {
+            return {
+                "c": values["shape_corners"],
+                "r": values["shape_radius"],
+                "o": values["shape_rotation"],
+                "a": values["loop_radius"],
+                "u": values["loop_count"],
+                "e": values["loop_rotation"],
+                "l": values["colour"],
+            }
+        }
+
+        function encodeSaveData(data) {
+            const jsoned = JSON.stringify(data);
+            const payload = btoa(jsoned);
+
+            let existingParams = new URLSearchParams(document.location.search);
+            existingParams.set("shapes", payload);
+            const result = document.location.protocol + "//" + document.location.host
+                + document.location.pathname + "?" + existingParams.toString();
+
+            return result;
+        }
+
+
+
+        function saveToLoopValues(save) {
+            return {
+                "shape_corners": save["c"],
+                "shape_radius": save["r"],
+                "shape_rotation": save["o"],
+                "loop_radius": save["a"],
+                "loop_count": save["u"],
+                "loop_rotation": save["e"],
+                "colour": save["l"]
+            }
+        }
+
+        function decodeSaveData(payload) {
+            const rawJson = atob(payload);
+            const data = JSON.parse(rawJson);
+            let result = [];
+            for (let i = 0; i < data.length; i++) {
+                result.push(saveToLoopValues(data[i]));
+            }
+
+            return result;
+        }
+
         function update_drawing() {
             const parentEl = document.getElementById("controls");
             const imageEl = document.getElementById("image_root");
@@ -345,12 +421,16 @@
             const rootGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
             rootGroup.setAttribute("transform", "translate(200, 200)");
 
+            var saveData = [];
+
             var children = parentEl.children;
             for (var i = 0; i < children.length; i++) {
                 var child = children[i];
 
                 const loopValues = child.getValues();
                 console.log(loopValues);
+
+                saveData.push(loopValuesToSave(loopValues));
 
                 const loopGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
                 loopGroup.setAttribute("transform", "rotate(" + loopValues["loop_rotation"] + ")");
@@ -391,6 +471,11 @@
             }
 
             imageEl.appendChild(rootGroup);
+
+            const newUrl = encodeSaveData(saveData);
+            if (newUrl != document.location.toString()) {
+                window.history.replaceState({ path: newUrl }, "", newUrl);
+            }
         }
 
         function add_element() {
@@ -432,10 +517,28 @@
 
             update_drawing();
         }
+
+        function setup() {
+            const params = new URLSearchParams(document.location.search);
+            const payload = params.get("shapes");
+            if (payload) {
+                const data = decodeSaveData(payload);
+                const parentEl = document.getElementById("controls");
+                // make sure the list is empty, it should be, but we can make sure easily enough.
+                clear_loops();
+
+                for (let i = 0; i < data.length; i++) {
+                    const new_control = document.createElement("element-control-form");
+                    new_control.initialData = data[i];
+                    parentEl.appendChild(new_control);
+                }
+                update_drawing();
+            }
+        }
     </script>
 </head>
 
-<body>
+<body onload="setup()">
     <div class="row">
         <div id="canvas_container" class="canvasContainer">
             <svg id="image_root" version="1.1" viewBox="0 0 400 400" with=100% height=100%
