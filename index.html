@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>patterns</title>
+    <title>Patterns</title>
     <style>
         html,
         body {
@@ -409,28 +409,12 @@
             return result;
         }
 
-        function update_drawing() {
-            const parentEl = document.getElementById("controls");
-            const imageEl = document.getElementById("image_root");
-
-            // Clear the existing elements.
-            while (imageEl.firstChild) {
-                imageEl.removeChild(imageEl.lastChild);
-            }
-
+        function create_svg(svgEl, data) {
             const rootGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
             rootGroup.setAttribute("transform", "translate(200, 200)");
 
-            var saveData = [];
-
-            var children = parentEl.children;
-            for (var i = 0; i < children.length; i++) {
-                var child = children[i];
-
-                const loopValues = child.getValues();
-                console.log(loopValues);
-
-                saveData.push(loopValuesToSave(loopValues));
+            for (let i = 0; i < data.length; i++) {
+                const loopValues = data[i];
 
                 const loopGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
                 loopGroup.setAttribute("transform", "rotate(" + loopValues["loop_rotation"] + ")");
@@ -467,10 +451,38 @@
                 }
 
                 rootGroup.appendChild(loopGroup);
-
             }
 
-            imageEl.appendChild(rootGroup);
+            svgEl.appendChild(rootGroup);
+        }
+
+        function update_drawing() {
+            const parentEl = document.getElementById("controls");
+            const imageEl = document.getElementById("image_root");
+
+            // Clear the existing elements.
+            while (imageEl.firstChild) {
+                imageEl.removeChild(imageEl.lastChild);
+            }
+
+            const rootGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            rootGroup.setAttribute("transform", "translate(200, 200)");
+
+            var saveData = [];
+            var data = [];
+
+            var children = parentEl.children;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+
+                const loopValues = child.getValues();
+                console.log(loopValues);
+
+                saveData.push(loopValuesToSave(loopValues));
+                data.push(loopValues);
+            }
+
+            create_svg(imageEl, data);
 
             const newUrl = encodeSaveData(saveData);
             if (newUrl != document.location.toString()) {
